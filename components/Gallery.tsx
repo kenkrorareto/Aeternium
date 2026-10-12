@@ -284,6 +284,7 @@ export default function Gallery() {
               quality={90}
               loading="eager"
               decoding="async"
+              style={{ objectFit: "contain", objectPosition: "center" }}
             />
           </div>
         </div>
