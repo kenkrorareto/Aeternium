@@ -175,6 +175,8 @@ export default function AdminPanel() {
 
       {notice && (
         <p
+          role="alert"
+          aria-live="polite"
           className={
             notice.kind === "ok"
               ? "notice notice--ok"
@@ -196,6 +198,7 @@ export default function AdminPanel() {
                 ref={charNameRef}
                 className="input"
                 placeholder="Nombre del personaje"
+                autoComplete="off"
               />
             </div>
             <div className="field">
@@ -224,6 +227,10 @@ export default function AdminPanel() {
                   className="admin-list__thumb"
                   src={character.image_url}
                   alt=""
+                  width={40}
+                  height={40}
+                  loading="lazy"
+                  decoding="async"
                 />
                 <span className="admin-list__name">{character.name}</span>
                 <button
@@ -249,6 +256,7 @@ export default function AdminPanel() {
                 ref={mapNameRef}
                 className="input"
                 placeholder="Nombre del mapa"
+                autoComplete="off"
               />
             </div>
             <div className="field">

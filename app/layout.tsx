@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Cinzel, EB_Garamond, MedievalSharp } from "next/font/google";
 import SiteNav from "@/components/SiteNav";
 import "./globals.css";
@@ -24,9 +24,43 @@ const medieval = MedievalSharp({
   display: "swap",
 });
 
+const supabaseHost = process.env.NEXT_PUBLIC_SUPABASE_URL
+  ? new URL(process.env.NEXT_PUBLIC_SUPABASE_URL).host
+  : null;
+
+export const viewport: Viewport = {
+  themeColor: "#2c0136",
+  colorScheme: "dark",
+};
+
 export const metadata: Metadata = {
-  title: "Aeternium",
+  metadataBase: new URL(
+    process.env.VERCEL_URL
+      ? `https://${process.env.VERCEL_URL}`
+      : "https://aeternium-nine.vercel.app"
+  ),
+  title: {
+    default: "Aeternium",
+    template: "%s · Aeternium",
+  },
   description: "Atlas y galería del mundo de Aeternium",
+  applicationName: "Aeternium",
+  icons: {
+    icon: "/icon.svg",
+    apple: "/apple-icon.png",
+  },
+  openGraph: {
+    type: "website",
+    locale: "es_ES",
+    siteName: "Aeternium",
+    title: "Aeternium",
+    description: "Atlas y galería del mundo de Aeternium",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Aeternium",
+    description: "Atlas y galería del mundo de Aeternium",
+  },
 };
 
 export default function RootLayout({
@@ -39,9 +73,20 @@ export default function RootLayout({
       lang="es"
       className={`${cinzel.variable} ${ebGaramond.variable} ${medieval.variable}`}
     >
+      <head>
+        {supabaseHost && <link rel="preconnect" href={`https://${supabaseHost}`} />}
+      </head>
       <body>
+        <a className="skip-link" href="#contenido">
+          Saltar al contenido
+        </a>
         <SiteNav />
-        {children}
+        <main id="contenido">{children}</main>
+        <footer className="site-footer">
+          <p>
+            Aeternium · Atlas y Galería· © {new Date().getFullYear()}
+          </p>
+        </footer>
       </body>
     </html>
   );

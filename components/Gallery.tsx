@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useEffect, useMemo, useState } from "react";
 import type { CharacterDTO } from "@/lib/types";
 
@@ -129,29 +130,51 @@ export default function Gallery() {
         </p>
       </header>
 
-      {error && <p className="notice notice--error">{error}</p>}
+      {error && <p className="notice notice--error" role="alert">{error}</p>}
+
       {status === "loading" && (
-        <p className="no-results muted">Cargando galería…</p>
+        <div id="gallery--skeleton" aria-hidden="true">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <div key={i} className="skeleton-card">
+              <div className="skeleton-block skeleton-card__title" />
+              <div className="skeleton-block skeleton-card__img" />
+            </div>
+          ))}
+        </div>
       )}
 
       {status === "ready" && (
         <div id="gallery">
-          {ordered.map(({ character }) => (
-            <div key={character.id} className="thumbnail-container appear">
+          {ordered.map(({ character }, index) => (
+            <div
+              key={character.id}
+              className="thumbnail-container appear"
+              style={{ animationDelay: `${(index % 8) * 45}ms` }}
+            >
               <h2>{character.name}</h2>
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={character.image_url}
-                alt={`Retrato de ${character.name}`}
-                loading="lazy"
-              />
+              <div className="thumb-frame">
+                <Image
+                  src={character.image_url}
+                  alt={`Retrato de ${character.name}`}
+                  fill
+                  sizes="(max-width: 900px) 45vw, (min-width: 1400px) 320px, 33vw"
+                  quality={85}
+                  loading="lazy"
+                  decoding="async"
+                />
+              </div>
             </div>
           ))}
         </div>
       )}
 
       {status === "ready" && ordered.length === 0 && (
-        <p className="no-results">No se encontraron personajes.</p>
+        <p className="no-results">
+          No se encontraron personajes.
+          <small>
+            Prueba a cambiar el nombre buscado o el filtro de letra.
+          </small>
+        </p>
       )}
     </div>
   );

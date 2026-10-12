@@ -367,9 +367,18 @@ export default function MapView({ isAdmin }: Props) {
         )}
       </header>
 
-      {error && <p className="notice notice--error map-status">{error}</p>}
+      {error && (
+        <p className="notice notice--error map-status" role="alert">{error}</p>
+      )}
 
-      {status === "loading" && <p className="map-status muted">Cargando mapas…</p>}
+      {status === "loading" && (
+        <div className="map-frame" aria-hidden="true">
+          <div className="map-loading map-loading--frame">
+            <span className="map-loading__spinner" aria-hidden="true" />
+            Cargando mapas…
+          </div>
+        </div>
+      )}
 
       {status === "ready" && maps.length === 0 && (
         <p className="map-status muted">
@@ -378,10 +387,17 @@ export default function MapView({ isAdmin }: Props) {
       )}
 
       <div className="map-frame" style={{ display: maps.length === 0 ? "none" : "block" }}>
-        <div id="map" />
+        <div id="map" aria-label="Mapa de Aeternium" />
+
+        {status === "ready" && !detail && (
+          <div className="map-loading" role="status">
+            <span className="map-loading__spinner" aria-hidden="true" />
+            Cargando mapa…
+          </div>
+        )}
 
         {pendingPoint && (
-          <div className="map-overlay">
+          <div className="map-overlay" role="dialog" aria-label="Nuevo marcador">
             <h3>Nuevo marcador</h3>
             <p className="map-overlay__coords">
               x: {pendingPoint.x.toFixed(1)} · y: {pendingPoint.y.toFixed(1)}
@@ -433,7 +449,7 @@ export default function MapView({ isAdmin }: Props) {
         )}
 
         {selectedMarker && (
-          <div className="map-overlay">
+          <div className="map-overlay" role="dialog" aria-label="Editar marcador">
             <h3>Editar marcador</h3>
             <div className="field">
               <label htmlFor="edit-label">Nombre</label>
