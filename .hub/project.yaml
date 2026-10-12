@@ -1,0 +1,46 @@
+name: aeternium
+displayName: Aeternium
+description: Atlas y galería de Aeternium (Next.js + Supabase). Solo desarrollo local; producción en Vercel/Supabase.
+type: command
+rootPath: .
+workingDir: .
+defaultUrl: http://localhost:8090
+commands:
+  start:
+    - "npm"
+    - "run"
+    - "dev"
+    - "--"
+    - "-p"
+    - "8090"
+  stop:
+    - "pkill"
+    - "-f"
+    - "next dev"
+  status:
+    - "pgrep"
+    - "-f"
+    - "next dev"
+ports:
+  - key: http
+    label: Servidor de desarrollo
+    default: 8090
+healthcheck:
+  type: command
+actions:
+  allowStart: true
+  allowStop: true
+  allowDown: false
+  allowRestart: true
+  allowBuild: true
+  allowPull: false
+  allowLogs: false
+  allowEnvEdit: true
+metrics:
+  enabled: true
+  processStats: true
+ui:
+  icon: map
+  accentColor: "#e8b54a"
+  group: "rol"
+  favorite: true
