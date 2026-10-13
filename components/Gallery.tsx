@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { useEffect, useMemo, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import type { CharacterDTO } from "@/lib/types";
 
 function normalize(text: string): string {
@@ -19,7 +20,12 @@ export default function Gallery() {
   const [sort, setSort] = useState<"asc" | "desc">("asc");
   const [activeLetter, setActiveLetter] = useState("all");
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
+  const [mounted, setMounted] = useState(false);
   const closeBtnRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     fetch("/api/characters")
@@ -107,6 +113,15 @@ export default function Gallery() {
     if (selectedIndex !== null && closeBtnRef.current) {
       closeBtnRef.current.focus();
     }
+  }, [selectedIndex]);
+
+  useEffect(() => {
+    if (selectedIndex === null) return;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = previousOverflow;
+    };
   }, [selectedIndex]);
 
   return (
@@ -232,63 +247,77 @@ export default function Gallery() {
         </p>
       )}
 
-      {selected && selectedIndex !== null && (
-        <div
-          className="lightbox"
-          role="dialog"
-          aria-modal="true"
-          aria-label={`Imagen ampliada de ${selected.name} (${selectedIndex + 1} de ${ordered.length})`}
-          onClick={() => setSelectedIndex(null)}
-        >
-          <button
-            type="button"
-            className="lightbox__close"
-            aria-label="Cerrar imagen ampliada"
+      {mounted &&
+        selected &&
+        selectedIndex !== null &&
+        createPortal(
+          <div
+            className="lightbox"
+            role="dialog"
+            aria-modal="true"
+            aria-label={`Imagen ampliada de ${selected.name} (${selectedIndex + 1} de ${ordered.length})`}
             onClick={() => setSelectedIndex(null)}
-            ref={closeBtnRef}
           >
-            ×
-          </button>
-          <button
-            type="button"
-            className="lightbox__nav lightbox__nav--prev"
-            aria-label="Imagen anterior"
-            onClick={(e) => {
-              e.stopPropagation();
-              setSelectedIndex((prev) =>
-                prev === null ? prev : (prev - 1 + ordered.length) % ordered.length
-              );
-            }}
-          >
-            ‹
-          </button>
-          <button
-            type="button"
-            className="lightbox__nav lightbox__nav--next"
-            aria-label="Siguiente imagen"
-            onClick={(e) => {
-              e.stopPropagation();
-              setSelectedIndex((prev) =>
-                prev === null ? prev : (prev + 1) % ordered.length
-              );
-            }}
-          >
-            ›
-          </button>
-          <div className="lightbox__content" onClick={(e) => e.stopPropagation()}>
-            <Image
-              src={selected.image_url}
-              alt={`Retrato de ${selected.name}`}
-              fill
-              sizes="95vw"
-              quality={90}
-              loading="eager"
-              decoding="async"
-              style={{ objectFit: "contain", objectPosition: "center" }}
-            />
-          </div>
-        </div>
-      )}
+            <button
+              type="button"
+              className="lightbox__close"
+              aria-label="Cerrar imagen ampliada"
+              onClick={() => setSelectedIndex(null)}
+              ref={closeBtnRef}
+            >
+              ×
+            </button>
+            <button
+              type="button"
+              className="lightbox__nav lightbox__nav--prev"
+              aria-label="Imagen anterior"
+              onClick={(e) => {
+                e.stopPropagation();
+                setSelectedIndex((prev) =>
+                  prev === null ? prev : (prev - 1 + ordered.length) % ordered.length
+                );
+              }}
+            >
+              ‹
+            </button>
+            <button
+              type="button"
+              className="lightbox__nav lightbox__nav--next"
+              aria-label="Siguiente imagen"
+              onClick={(e) => {
+                e.stopPropagation();
+                setSelectedIndex((prev) =>
+                  prev === null ? prev : (prev + 1) % ordered.length
+                );
+              }}
+            >
+              ›
+            </button>
+            <figure
+              className="lightbox__frame"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <Image
+                className="lightbox__img"
+                src={selected.image_url}
+                alt={`Retrato de ${selected.name}`}
+                width={1200}
+                height={1600}
+                sizes="90vw"
+                quality={90}
+                loading="eager"
+                decoding="async"
+              />
+              <figcaption className="lightbox__caption">
+                <span className="lightbox__name">{selected.name}</span>
+                <span className="lightbox__counter">
+                  {selectedIndex + 1} / {ordered.length}
+                </span>
+              </figcaption>
+            </figure>
+          </div>,
+          document.body
+        )}
     </div>
   );
 }
